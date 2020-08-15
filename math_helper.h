@@ -247,8 +247,6 @@ namespace cxut {
 
 
     inline int diis(std::function<double(double)> iter, double& x, double tol = 1e-8, size_t const& max_iter = 50, size_t const& max_subspace = 20) {
-        size_t counter = 0;
-
         double xdiis = iter(x);
         double r = xdiis - x;
         x = xdiis;
@@ -268,8 +266,8 @@ namespace cxut {
             return join_cols(arma::zeros(B.n_cols), arma::vec{1.0}); 
         };
 
+        size_t counter = 0;
         while (counter < max_iter) {
-            // check if the DIIS matrix is singular or oversized
             if ( B.n_cols > max_subspace || arma::rcond(diismat()) < 1e-14 ) {
                 rs.shed_col(0);
                 xs.shed_col(0);
@@ -279,21 +277,17 @@ namespace cxut {
             }
             ++counter;
             
-            // DIIS mixing
             xdiis = arma::dot( xs, arma::solve(diismat(), diisvec()).eval().head_rows(B.n_cols) );
 
             x = iter(xdiis);
             r = x - xdiis;
 
-            std::cout << "DIIS error: " << std::abs(r) << std::endl;
             if (std::abs(r) < tol) {
                 return 0;
             }
 
-            xs.insert_cols(xs.n_cols, 1, false);
-            xs.col(xs.n_cols-1) = x;
-            rs.insert_cols(rs.n_cols, 1, false);
-            rs.col(rs.n_cols-1) = r;
+            xs.insert_cols(xs.n_cols, arma::vec{x});
+            rs.insert_cols(rs.n_cols, arma::vec{r});
 
             B.resize(B.n_rows+1, B.n_cols+1);
             B.row(B.n_rows-1) = rs.col(rs.n_cols-1).t() * rs;
@@ -305,8 +299,6 @@ namespace cxut {
     } 
 
     inline int diis(std::function< std::tuple<double, double>(double) > iter_err, double& x, double tol = 1e-8, size_t const& max_iter = 50, size_t const& max_subspace = 20) {
-        size_t counter = 0;
-
         double r;
         std::tie(x, r) = iter_err(x);
         arma::rowvec xs = {x};
@@ -325,8 +317,8 @@ namespace cxut {
             return join_cols(arma::zeros(B.n_cols), arma::vec{1.0}); 
         };
 
+        size_t counter = 0;
         while (counter < max_iter) {
-            // check if the DIIS matrix is singular or oversized
             if ( B.n_cols > max_subspace || arma::rcond(diismat()) < 1e-14 ) {
                 rs.shed_col(0);
                 xs.shed_col(0);
@@ -338,15 +330,12 @@ namespace cxut {
             
             std::tie(x, r) = iter_err( arma::dot( xs, arma::solve(diismat(), diisvec()).eval().head_rows(B.n_cols) ) );
 
-            std::cout << "DIIS error: " << std::abs(r) << std::endl;
             if (std::abs(r) < tol) {
                 return 0;
             }
 
-            xs.insert_cols(xs.n_cols, 1, false);
-            xs.col(xs.n_cols-1) = x;
-            rs.insert_cols(rs.n_cols, 1, false);
-            rs.col(rs.n_cols-1) = r;
+            xs.insert_cols(xs.n_cols, arma::vec{x});
+            rs.insert_cols(rs.n_cols, arma::vec{r});
 
             B.resize(B.n_rows+1, B.n_cols+1);
             B.row(B.n_rows-1) = rs.col(rs.n_cols-1).t() * rs;
@@ -358,8 +347,6 @@ namespace cxut {
     } 
 
     inline int diis(std::function<arma::vec(arma::vec)> iter, arma::vec& x, double tol = 1e-8, size_t const& max_iter = 50, size_t const& max_subspace = 20) {
-        size_t counter = 0;
-
         arma::vec xdiis = iter(x);
         arma::vec r = xdiis - x;
         x = xdiis;
@@ -379,8 +366,8 @@ namespace cxut {
             return join_cols(arma::zeros(B.n_cols), arma::vec{1.0}); 
         };
 
+        size_t counter = 0;
         while (counter < max_iter) {
-            // check if the DIIS matrix is singular or oversized
             if ( B.n_cols > max_subspace || arma::rcond(diismat()) < 1e-14 ) {
                 rs.shed_col(0);
                 xs.shed_col(0);
@@ -390,21 +377,17 @@ namespace cxut {
             }
             ++counter;
             
-            // DIIS mixing
             xdiis = xs * arma::solve(diismat(), diisvec()).eval().head_rows(B.n_cols);
 
             x = iter(xdiis);
             r = x - xdiis;
 
-            std::cout << "DIIS error: " << arma::norm(r) << std::endl;
             if (arma::norm(r) < tol) {
                 return 0;
             }
 
-            xs.insert_cols(xs.n_cols, 1, false);
-            xs.col(xs.n_cols-1) = x;
-            rs.insert_cols(rs.n_cols, 1, false);
-            rs.col(rs.n_cols-1) = r;
+            xs.insert_cols(xs.n_cols, x);
+            rs.insert_cols(rs.n_cols, r);
 
             B.resize(B.n_rows+1, B.n_cols+1);
             B.row(B.n_rows-1) = rs.col(rs.n_cols-1).t() * rs;
@@ -416,8 +399,6 @@ namespace cxut {
     } 
 
     inline int diis(std::function< std::tuple<arma::vec, arma::vec>(arma::vec) > iter_err, arma::vec& x, double tol = 1e-8, size_t const& max_iter = 50, size_t const& max_subspace = 20) {
-        size_t counter = 0;
-
         arma::vec r;
         std::tie(x, r) = iter_err(x);
         arma::mat xs = x;
@@ -436,8 +417,8 @@ namespace cxut {
             return join_cols(arma::zeros(B.n_cols), arma::vec{1.0}); 
         };
 
+        size_t counter = 0;
         while (counter < max_iter) {
-            // check if the DIIS matrix is singular or oversized
             if ( B.n_cols > max_subspace || arma::rcond(diismat()) < 1e-14 ) {
                 rs.shed_col(0);
                 xs.shed_col(0);
@@ -449,15 +430,12 @@ namespace cxut {
             
             std::tie(x, r) = iter_err(xs * arma::solve(diismat(), diisvec()).eval().head_rows(B.n_cols));
 
-            std::cout << "DIIS error: " << arma::norm(r) << std::endl;
             if (arma::norm(r) < tol) {
                 return 0;
             }
 
-            xs.insert_cols(xs.n_cols, 1, false);
-            xs.col(xs.n_cols-1) = x;
-            rs.insert_cols(rs.n_cols, 1, false);
-            rs.col(rs.n_cols-1) = r;
+            xs.insert_cols(xs.n_cols, x);
+            rs.insert_cols(rs.n_cols, r);
 
             B.resize(B.n_rows+1, B.n_cols+1);
             B.row(B.n_rows-1) = rs.col(rs.n_cols-1).t() * rs;
