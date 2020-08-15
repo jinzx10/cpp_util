@@ -68,13 +68,6 @@ namespace cxut {
 		}
 	}
 	
-	// unit vector
-	inline arma::vec unit_vec(arma::uword const& dim, arma::uword const& index) {
-		arma::vec v = arma::zeros(dim);
-		v(index) = 1.0;
-		return v;
-	}
-	
 	
 	// index range and concatenation
 	inline arma::uvec range(arma::uword const& i, arma::uword const& j) {
@@ -91,6 +84,7 @@ namespace cxut {
 		return arma::join_cols(arma::uvec{i}, cat(args...));
 	}
 	
+
 	// dimensions of armadillo Col/Row/Mat/Cube
 	template <typename eT>
 	arma::uvec dim(arma::Col<eT> const& a) {
@@ -112,6 +106,7 @@ namespace cxut {
 		return arma::uvec{a.n_rows, a.n_cols, a.n_slices};
 	}
 	
+
 	// batch size setting
 	template <typename eT>
 	int set_size(arma::uvec const& sz, arma::Row<eT>& a) {
@@ -137,28 +132,6 @@ namespace cxut {
 	int set_size(arma::uvec const& sz, T& a, Ts& ...args) {
 		int status = set_size(sz, a);
 		return status ? status : set_size(sz, args...);
-	}
-	
-	template <typename eT>
-	void set_size(arma::uword const& sz, arma::Mat<eT>& m) {
-		m.set_size(sz);
-	}
-	
-	template <typename eT, typename ...Ts>
-	void set_size(arma::uword const& sz, arma::Mat<eT>& m, Ts& ...args) {
-	    m.set_size(sz);
-	    set_size(sz, args...);
-	}
-	
-	template <typename eT>
-	void set_size(arma::uword const& sz_r, arma::uword const& sz_c, arma::Mat<eT>& m) {
-		m.set_size(sz_r, sz_c);
-	}
-	
-	template <typename eT, typename ...Ts>
-	void set_size(arma::uword const& sz_r, arma::uword const& sz_c, arma::Mat<eT>& m, Ts& ...args) {
-	    m.set_size(sz_r, sz_c);
-	    set_size(sz_r, sz_c, args...);
 	}
 	
 	
@@ -212,6 +185,7 @@ namespace cxut {
 	    return join_d(m, join_d(ms...));
 	}
 	
+
 	// save/load
 	template <arma::file_type F, typename T>
 	void arma_save(std::string const& dir, T const& data, std::string const& name) {
@@ -234,6 +208,7 @@ namespace cxut {
 	    data.load(dir+"/"+name);
 	    arma_load(dir, args...);
 	}
+
 
 	// convert a string of brace-enclosed list of floating-point numbers to an armadillo Col
 	// for complex numbers, the format must be (x,y)
